@@ -1,7 +1,8 @@
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.HashSet;
+import java.util.TreeSet;
+import java.util.HashMap;
 import java.io.FileNotFoundException;
 
 public class App {
@@ -36,49 +37,68 @@ public class App {
 
     }
 
-    // HH algorithm with pivot = node with max degree
     public static AdjMatrix hhMax(ArrayList<Integer> terms){
         AdjMatrix result = new AdjMatrix(terms.size());
-        ArrayList<ArrayList<Integer>> bins = new ArrayList<ArrayList<Integer>>();
+        
+        ArrayList<TreeSet<Integer>> bins = new ArrayList<TreeSet<Integer>>();
+        
         int k, curDeg, startNode, endNode;
-        HashSet<Integer> thisRound;
+        HashMap<Integer, Integer> movedNodes;
+
+        for(int i=0; i<terms.size(); i++){
+            bins.add(new TreeSet<Integer>());
+        }
+        for(int i=0; i<terms.size(); i++){
+            bins.get(terms.get(i)).add(i);
+        }
+
+        System.out.println(bins);
+
+        int rounds = 0;
 
         while(bins.get(0).size() != terms.size()){
 
-            thisRound = new HashSet<Integer>();
+            System.out.println("Round " + ++rounds);
+
+            movedNodes = new HashMap<Integer, Integer>();
             
             k = bins.size()-1;
             while(bins.get(k).isEmpty())
                 k--;
 
-            startNode = bins.get(k).remove(0);
+            startNode = bins.get(k).pollFirst();
             bins.get(0).add(startNode);
             curDeg = k;
 
+            System.out.println("Pivot node: " + startNode);
+            System.out.println(bins);
+
+            // endNode = 0;
+
             for(int i=0; i<k; i++){
-                // 
-                while((bins.get(curDeg).isEmpty() || (thisRound.contains(bins.get(curDeg).get(0)) && bins.get(curDeg).size() == 1)) && curDeg > 0){
+                // while(bins.get(0).contains(endNode))
+                //     endNode++;
+                while((bins.get(curDeg).isEmpty() || (movedNodes.keySet().contains(bins.get(curDeg).first()) && bins.get(curDeg).size() == 1)) && curDeg > 0){
                     curDeg--;
                 }
-                // Non-graphic sequence: return null
                 if(curDeg == 0)
                     return null;
                 else {
-                    // Don't repeat edges
-                    int index = 0;
-                    while(thisRound.contains(bins.get(curDeg).get(index)))
-                        index++;
-                    // Select end node, move it to next-lower bin
-                    endNode = bins.get(curDeg).remove(index);
-                    bins.get(curDeg-1).add(endNode);
-                    // Ensure we don't repeat this edge
-                    thisRound.add(endNode);
-                    // Add edges to adjacency matrix
+                    endNode = bins.get(curDeg).pollFirst();
+                    movedNodes.put(endNode, curDeg-1);
+                    // bins.get(curDeg-1).add(endNode);
                     result.addEdge(startNode, endNode);
                     result.addEdge(endNode, startNode);
-                    
+                    System.out.println("Added edge: (" + startNode + ", " + endNode + ")");
+                    System.out.println(bins);
                 }
             }
+
+            for(int node : movedNodes.keySet())
+                bins.get(movedNodes.get(node)).add(node);
+            System.out.println("Moved nodes");
+            System.out.println(bins);
+
         }
         return result;
     }
