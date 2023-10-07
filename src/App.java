@@ -1,20 +1,13 @@
-package src;
-
-import java.io.BufferedWriter;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.HashSet;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.lang.Math;
-import java.util.Arrays;
-import java.util.Collections;
 
 public class App {
     public static void main(String[] args){
 
-        // takeInputFromTerminal();
+        takeInputFromTerminal();
 
         // takeInputFromFile(new File("../test/16x16/1.txt"));
 
@@ -39,32 +32,54 @@ public class App {
         for(int i=0; i<numTerms; i++)
             terms.add(in.nextInt());
         
-
+        System.out.println(hhMax(terms));
 
     }
 
-    public static boolean isSeqGraphic(ArrayList<Integer> terms){
-        if(terms.get(0) == 0)
-            return true;
-        else if(terms.get(0) >= terms.size() || terms.get(terms.get(0)+1) == 0)
-            return false;
-        else
-            return isSeqGraphic(hhTransformation(terms));
-    }
+    // HH algorithm with pivot = node with max degree
+    public static AdjMatrix hhMax(ArrayList<Integer> terms){
+        AdjMatrix result = new AdjMatrix(terms.size());
+        ArrayList<ArrayList<Integer>> bins = new ArrayList<ArrayList<Integer>>();
+        int k, curDeg, startNode, endNode;
+        HashSet<Integer> thisRound;
 
-    public static ArrayList<Integer> hhTransformation(ArrayList<Integer> terms){
-        ArrayList<Integer> result = new ArrayList<Integer>();
-        int pivotIndex = terms.get(0);
-        for(int i=1; i<terms.size(); i++){
-            int next = terms.get(i);
-            if(i < pivotIndex)
-                result.add(next-1);
-            else
-                result.add(next);
+        while(bins.get(0).size() != terms.size()){
+
+            thisRound = new HashSet<Integer>();
+            
+            k = bins.size()-1;
+            while(bins.get(k).isEmpty())
+                k--;
+
+            startNode = bins.get(k).remove(0);
+            bins.get(0).add(startNode);
+            curDeg = k;
+
+            for(int i=0; i<k; i++){
+                // 
+                while((bins.get(curDeg).isEmpty() || (thisRound.contains(bins.get(curDeg).get(0)) && bins.get(curDeg).size() == 1)) && curDeg > 0){
+                    curDeg--;
+                }
+                // Non-graphic sequence: return null
+                if(curDeg == 0)
+                    return null;
+                else {
+                    // Don't repeat edges
+                    int index = 0;
+                    while(thisRound.contains(bins.get(curDeg).get(index)))
+                        index++;
+                    // Select end node, move it to next-lower bin
+                    endNode = bins.get(curDeg).remove(index);
+                    bins.get(curDeg-1).add(endNode);
+                    // Ensure we don't repeat this edge
+                    thisRound.add(endNode);
+                    // Add edges to adjacency matrix
+                    result.addEdge(startNode, endNode);
+                    result.addEdge(endNode, startNode);
+                    
+                }
+            }
         }
-
-        Collections.sort(hhTransformation(terms), Collections.reverseOrder());
-
         return result;
     }
 

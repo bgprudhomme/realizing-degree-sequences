@@ -1,30 +1,24 @@
-package src;
 import java.util.ArrayList;
 
 public class AdjMatrix {
 
-    private int rows, cols;
+    private int size;
     private ArrayList<ArrayList<Boolean>> entries;
 
     // Constructor for rectangular matrix
-    public AdjMatrix(int rows, int cols){
-        this.rows = rows;
-        this.cols = cols;
+    public AdjMatrix(int size){
+        this.size = size;
         entries = new ArrayList<ArrayList<Boolean>>();
-        for(int i=0; i<this.rows; i++){
+        for(int i=0; i<this.size; i++){
             entries.add(new ArrayList<Boolean>());
-            for(int j=0; j<this.cols; j++){
+            for(int j=0; j<this.size; j++){
                 ((ArrayList<Boolean>) entries.get(i)).add(false);
             }
         }
     }
 
-    public int rows(){
-        return rows;
-    }
-
-    public int cols(){
-        return cols;
+    public int size(){
+        return size;
     }
 
     public boolean get(int row, int col){
@@ -40,10 +34,10 @@ public class AdjMatrix {
     }
 
     public boolean equals(AdjMatrix other){
-        if((this.rows() != other.rows()) || (this.cols() != other.cols()))
+        if((this.size() != other.size()))
             return false;
-        for(int i=0; i<this.rows(); i++){
-            for(int j=0; j<this.rows(); j++){
+        for(int i=0; i<this.size(); i++){
+            for(int j=0; j<this.size(); j++){
                 if(this.get(i, j) != other.get(i, j))
                     return false;
             }
@@ -53,9 +47,12 @@ public class AdjMatrix {
 
     public String toString(){
         String result = "";
-        for(int i=0; i<rows; i++){
-            for(int j=0; j<cols; j++){
-                result += ((ArrayList<Boolean>) entries.get(i)).get(j) + "\t";
+        for(int i=0; i<size; i++){
+            for(int j=0; j<size; j++){
+                if(entries.get(i).get(j))
+                    result += "1 ";
+                else
+                    result += "0 ";
             }
             result += "\n";
         }
