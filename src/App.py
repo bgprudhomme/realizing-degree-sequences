@@ -6,17 +6,21 @@ import math
 
 class App:
     def main():
-        App.take_input_from_terminal()
-        # App.take_input_from_file("../test/16x16/1.txt")
+        # App.take_input_from_terminal()
+        App.take_input_from_file()
 
     def take_input_from_terminal():
-        print("Input:")
-        App.run(input())
+        while True:
+            print("Input:")
+            App.run(input())
 
-    def take_input_from_file(file_path):
+    def take_input_from_file():
+        print("File path:")
+        file_path = input()
         try:
             with open(file_path, 'r') as file:
-                App.run(file.read())
+                for line in file:
+                    App.run(line)
         except FileNotFoundError as e:
             print(e)
 
