@@ -7,8 +7,8 @@ import time
 
 class App:
     def main():
-        App.take_input_from_terminal()
-        # App.take_input_from_file()
+        # App.take_input_from_terminal()
+        App.take_input_from_file()
 
     def take_input_from_terminal():
         while True:
@@ -28,7 +28,6 @@ class App:
     def run(input_data):
         input_lines = input_data.strip().split('\n')
         num_terms, *terms = map(int, input_lines[0].split())
-        random.seed(100)
         # result = App.max_hh(terms)
         # result = App.min_hh(terms)
         # result = App.ur_hh(terms)
@@ -200,6 +199,8 @@ class App:
         return result
     
     def ur_hh(terms):
+        random.seed(100)
+
         result = AdjMatrix(len(terms))
 
         bins = [set() for _ in range(len(terms))]
@@ -254,6 +255,8 @@ class App:
         return result
     
     def pr_hh(terms):
+        random.seed(100)
+
         result = AdjMatrix(len(terms))
 
         bins = [set() for _ in range(len(terms))]
