@@ -3,11 +3,12 @@ import matplotlib.pyplot as plt
 import networkx as nx
 import random
 import math
+import time
 
 class App:
     def main():
-        # App.take_input_from_terminal()
-        App.take_input_from_file()
+        App.take_input_from_terminal()
+        # App.take_input_from_file()
 
     def take_input_from_terminal():
         while True:
@@ -27,13 +28,14 @@ class App:
     def run(input_data):
         input_lines = input_data.strip().split('\n')
         num_terms, *terms = map(int, input_lines[0].split())
-
-        result = App.max_hh(terms)
+        random.seed(100)
+        # result = App.max_hh(terms)
         # result = App.min_hh(terms)
         # result = App.ur_hh(terms)
+        result = App.pr_hh(terms)
 
         if result is not None:
-            print(result)
+            # print(result)
 
             G = nx.Graph()
 
@@ -84,6 +86,9 @@ class App:
             print("The degree sequence", terms, "is not graphic")
 
     def max_hh(terms):
+
+        # start_time = time.time()
+
         result = AdjMatrix(len(terms))
 
         bins = [set() for _ in range(len(terms))]
@@ -94,6 +99,7 @@ class App:
         # print(bins)
         
         rounds = 0
+        # transfers = 0
 
         while len(bins[0]) != len(terms):
             moved_nodes = {}
@@ -108,6 +114,7 @@ class App:
             bins[k].remove(pivot_node)
             # print("Pivot node:", pivot_node)
             bins[0].add(pivot_node)
+            # transfers += 1
             # print(bins)
             cur_deg = k
 
@@ -117,6 +124,7 @@ class App:
                 if cur_deg == 0:
                     return None
                 else:
+                    transfers += 1
                     neighbor_node = sorted(bins[cur_deg]).pop(0)
                     bins[cur_deg].remove(neighbor_node)
                     moved_nodes[neighbor_node] = cur_deg - 1
@@ -128,11 +136,13 @@ class App:
             for k in moved_nodes.keys():
                 bins[moved_nodes.get(k)].add(k)
 
-            # print("Moved nodes")
-            # print(bins)
+        # end_time = time.time()
 
-            # for i in range(len(moved_nodes)):
-            #     bins[moved_nodes_degs.pop()].add(moved_nodes.pop())
+        # elapsed_time_ms = (end_time - start_time) * 1000
+
+        # print(f"Time: {elapsed_time_ms:.2f} ms")
+
+        # print("Transfers", transfers)
 
         return result
     
@@ -240,6 +250,63 @@ class App:
 
             # for i in range(len(moved_nodes)):
             #     bins[moved_nodes_degs.pop()].add(moved_nodes.pop())
+
+        return result
+    
+    def pr_hh(terms):
+        result = AdjMatrix(len(terms))
+
+        bins = [set() for _ in range(len(terms))]
+
+        for i, term in enumerate(terms):
+            bins[term].add(i)
+        
+        print(bins)
+        
+        rounds = 0
+
+        while len(bins[0]) != len(terms):
+            moved_nodes = {}
+            rounds = rounds + 1
+            print("Round", rounds)
+
+            deg_sum = sum(i * len(bins[i]) for i in range(len(terms)))
+            bin_probabilities = [i * len(bins[i]) / deg_sum for i in range(len(terms))]
+            print("Bin probabilities:", bin_probabilities)  
+            
+            pivot_bin = random.choices(range(len(terms)), bin_probabilities)[0]
+            print("Pivot bin:", pivot_bin)  
+                          
+            pivot_node = random.choice(list(bins[pivot_bin]))
+            print("Pivot node:", pivot_node)  
+            k = 0
+            while pivot_node not in bins[k]:
+                k += 1
+
+            bins[k].remove(pivot_node)
+            bins[0].add(pivot_node)
+            print(bins)
+            cur_deg = len(terms) - 1
+
+            for i in range(k):
+                while len(bins[cur_deg]) == 0 and cur_deg > 0:
+                    cur_deg -= 1
+                if cur_deg == 0:
+                    return None
+                else:
+                    neighbor_node = sorted(bins[cur_deg]).pop(0)
+                    bins[cur_deg].remove(neighbor_node)
+                    moved_nodes[neighbor_node] = cur_deg - 1
+                    result.add_edge(pivot_node, neighbor_node)
+                    result.add_edge(neighbor_node, pivot_node)
+                    print("Added edge:", pivot_node, neighbor_node)
+                    print(bins)
+            
+            for k in moved_nodes.keys():
+                bins[moved_nodes.get(k)].add(k)
+
+            print("Moved nodes")
+            print(bins)
 
         return result
 
