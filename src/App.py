@@ -31,7 +31,8 @@ class App:
         # result = App.max_hh(terms)
         # result = App.min_hh(terms)
         # result = App.ur_hh(terms)
-        result = App.pr_hh(terms)
+        # result = App.pr_hh(terms)
+        result = App.parr_hh(terms, -1)
 
         if result is not None:
             # print(result)
@@ -275,6 +276,65 @@ class App:
 
             deg_sum = sum(i * len(bins[i]) for i in range(len(terms)))
             bin_probabilities = [i * len(bins[i]) / deg_sum for i in range(len(terms))]
+            print("Bin probabilities:", bin_probabilities)  
+            
+            pivot_bin = random.choices(range(len(terms)), bin_probabilities)[0]
+            print("Pivot bin:", pivot_bin)  
+                          
+            pivot_node = random.choice(list(bins[pivot_bin]))
+            print("Pivot node:", pivot_node)  
+            k = 0
+            while pivot_node not in bins[k]:
+                k += 1
+
+            bins[k].remove(pivot_node)
+            bins[0].add(pivot_node)
+            print(bins)
+            cur_deg = len(terms) - 1
+
+            for i in range(k):
+                while len(bins[cur_deg]) == 0 and cur_deg > 0:
+                    cur_deg -= 1
+                if cur_deg == 0:
+                    return None
+                else:
+                    neighbor_node = sorted(bins[cur_deg]).pop(0)
+                    bins[cur_deg].remove(neighbor_node)
+                    moved_nodes[neighbor_node] = cur_deg - 1
+                    result.add_edge(pivot_node, neighbor_node)
+                    result.add_edge(neighbor_node, pivot_node)
+                    print("Added edge:", pivot_node, neighbor_node)
+                    print(bins)
+            
+            for k in moved_nodes.keys():
+                bins[moved_nodes.get(k)].add(k)
+
+            print("Moved nodes")
+            print(bins)
+
+        return result
+    
+    def parr_hh(terms, x):
+        random.seed(100)
+
+        result = AdjMatrix(len(terms))
+
+        bins = [set() for _ in range(len(terms))]
+
+        for i, term in enumerate(terms):
+            bins[term].add(i)
+        
+        print(bins)
+        
+        rounds = 0
+
+        while len(bins[0]) != len(terms):
+            moved_nodes = {}
+            rounds = rounds + 1
+            print("Round", rounds)
+
+            deg_sum = sum((0 if i == 0 else pow(i, x)) * len(bins[i]) for i in range(len(terms)))
+            bin_probabilities = [(0 if i == 0 else pow(i, x)) * len(bins[i]) / deg_sum for i in range(len(terms))]
             print("Bin probabilities:", bin_probabilities)  
             
             pivot_bin = random.choices(range(len(terms)), bin_probabilities)[0]
