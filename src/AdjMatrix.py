@@ -23,6 +23,38 @@ class AdjMatrix:
                 if self.get(i, j) != other.get(i, j):
                     return False
         return True
+    
+    def cycleLens(self):
+        cycles = []
+        curCycle = 1
+
+        nodes = [i for i in range(self.size)]
+
+        x = nodes.pop(0)
+        prev = x
+
+        while len(nodes) > 0:
+            # set x
+            i = 0
+            while i == prev or self.get(x, i) == 0:
+                i += 1
+            if i in nodes:
+                prev = x
+                x = i
+                nodes.remove(i)
+                curCycle += 1
+            else:
+                cycles.append(curCycle)
+                curCycle = 1
+                if len(nodes) > 0:
+                    x = nodes.pop(0)
+                    prev = x
+
+        cycles.append(curCycle)
+
+        # print(cycles, "cycles")
+
+        return sorted(cycles)
 
     def __str__(self):
         result = ""
