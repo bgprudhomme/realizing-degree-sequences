@@ -448,7 +448,7 @@ class App:
                 if cur_deg == 0:
                     return None
                 else:
-                    neighbor_node = random.choice(list(bins[cur_deg]))
+                    neighbor_node = sorted(list(bins[cur_deg])).pop(0)
                     bins[cur_deg].remove(neighbor_node)
                     moved_nodes[neighbor_node] = cur_deg - 1
                     result.add_edge(pivot_node, neighbor_node)
